@@ -5,33 +5,18 @@ import { api } from '@/lib/api';
 
 export default function LoginPage() {
   const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSendOtp = async () => {
+  const handleLogin = async () => {
     if (phone.length < 10) { setError('Enter valid phone number'); return; }
+    if (!password) { setError('Enter password'); return; }
     setLoading(true);
     setError('');
-    const result = await api.sendOtp(`+91${phone}`);
+    const result = await api.adminLogin(`+91${phone}`, password);
     setLoading(false);
     if (result.error) { setError(result.error); return; }
-    setOtpSent(true);
-    if (result.debug_otp) setError(`DEV OTP: ${result.debug_otp}`);
-  };
-
-  const handleVerify = async () => {
-    if (otp.length < 4) { setError('Enter OTP'); return; }
-    setLoading(true);
-    setError('');
-    const result = await api.verifyOtp(`+91${phone}`, otp);
-    setLoading(false);
-    if (result.error) { setError(result.error); return; }
-    if (result.user?.role !== 'admin' && result.user?.role !== 'manager') {
-      setError('Access denied. Admin/Manager role required.');
-      return;
-    }
     api.setToken(result.tokens.access);
     window.location.href = '/';
   };
@@ -58,34 +43,31 @@ export default function LoginPage() {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Enter phone number"
                 maxLength={10}
-                disabled={otpSent}
                 className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
           </div>
 
-          {otpSent && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Enter OTP</label>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                placeholder="Enter 6-digit OTP"
-                maxLength={6}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-          )}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
 
           {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
 
           <button
-            onClick={otpSent ? handleVerify : handleSendOtp}
+            onClick={handleLogin}
             disabled={loading}
             className="w-full bg-green-700 text-white py-3 rounded-xl font-medium hover:bg-green-800 transition-colors disabled:opacity-50"
           >
-            {loading ? '...' : otpSent ? 'Verify & Login' : 'Send OTP'}
+            {loading ? '...' : 'Login'}
           </button>
         </div>
       </div>

@@ -8,7 +8,6 @@ const roleColors: Record<string, string> = {
   operator: 'bg-blue-50 text-blue-700',
   dealer: 'bg-purple-50 text-purple-700',
   manager: 'bg-orange-50 text-orange-700',
-  admin: 'bg-red-50 text-red-700',
 };
 
 export default function UsersPage() {

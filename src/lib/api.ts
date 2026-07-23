@@ -40,6 +40,7 @@ class AdminApi {
   // Auth
   sendOtp(phone: string) { return this.request('/auth/send-otp/', { method: 'POST', body: { phone } }); }
   verifyOtp(phone: string, otp: string) { return this.request('/auth/verify-otp/', { method: 'POST', body: { phone, otp } }); }
+  adminLogin(phone: string, password: string) { return this.request('/auth/admin-login/', { method: 'POST', body: { phone, password } }); }
 
   // Dashboard stats
   getStats() { return this.request('/bookings/stats/'); }
