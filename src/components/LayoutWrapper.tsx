@@ -7,7 +7,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   const router = useRouter();
   const [checked, setChecked] = useState(false);
-  const isLoginPage = pathname === '/login';
+  const isLoginPage = pathname === '/login' || pathname === '/login/';
 
   useEffect(() => {
     const token = localStorage.getItem('admin_token');
