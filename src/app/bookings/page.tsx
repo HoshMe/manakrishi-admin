@@ -16,6 +16,7 @@ const filters = ['all', 'confirmed', 'in_progress', 'on_the_way', 'completed', '
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { fetchBookings(); }, [filter]);
@@ -28,9 +29,31 @@ export default function BookingsPage() {
     setLoading(false);
   };
 
+  const filtered = bookings.filter(b => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      b.booking_id?.toLowerCase().includes(q) ||
+      b.service?.toLowerCase().includes(q) ||
+      b.farmer_detail?.first_name?.toLowerCase().includes(q) ||
+      b.farmer_detail?.last_name?.toLowerCase().includes(q) ||
+      b.location_address?.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Bookings</h1>
+
+      <div className="flex gap-3 mb-4">
+        <input
+          type="text"
+          placeholder="Search by booking ID, service, farmer..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+      </div>
 
       {/* Filters */}
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -60,9 +83,9 @@ export default function BookingsPage() {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-400">Loading...</td></tr>
-              ) : bookings.length === 0 ? (
+              ) : filtered.length === 0 ? (
                 <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-400">No bookings found</td></tr>
-              ) : bookings.map((b: any) => (
+              ) : filtered.map((b: any) => (
                 <tr key={b.booking_id || b.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">{b.booking_id}</td>
                   <td className="px-6 py-4 text-sm text-gray-600 capitalize">{b.service?.replace(/_/g, ' ')}</td>

@@ -16,6 +16,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [editingRole, setEditingRole] = useState<number | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => { fetchUsers(); }, [role]);
 
@@ -25,6 +26,18 @@ export default function UsersPage() {
     setUsers(data.results || data || []);
     setLoading(false);
   };
+
+  const filtered = users.filter(u => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      u.first_name?.toLowerCase().includes(q) ||
+      u.last_name?.toLowerCase().includes(q) ||
+      u.phone?.toLowerCase().includes(q) ||
+      u.district?.toLowerCase().includes(q) ||
+      u.role?.toLowerCase().includes(q)
+    );
+  });
 
   const handleRoleChange = async (userId: number, newRole: string) => {
     setUpdatingId(userId);
@@ -40,7 +53,17 @@ export default function UsersPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-        <span className="text-sm text-gray-500">{users.length} users</span>
+        <span className="text-sm text-gray-500">{filtered.length} users</span>
+      </div>
+
+      <div className="flex gap-3 mb-4">
+        <input
+          type="text"
+          placeholder="Search by name, phone, district..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
       </div>
 
       <div className="flex gap-2 mb-6">
@@ -67,9 +90,9 @@ export default function UsersPage() {
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-400">Loading...</td></tr>
-            ) : users.length === 0 ? (
+            ) : filtered.length === 0 ? (
               <tr><td colSpan={6} className="px-6 py-8 text-center text-gray-400">No users found</td></tr>
-            ) : users.map((u: any) => (
+            ) : filtered.map((u: any) => (
               <tr key={u.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{u.first_name} {u.last_name}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">{u.phone}</td>

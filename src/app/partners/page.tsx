@@ -4,15 +4,41 @@ import { api } from '@/lib/api';
 
 export default function PartnersPage() {
   const [partners, setPartners] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.getUsers('operator').then((data) => { setPartners(data.results || data || []); setLoading(false); });
   }, []);
 
+  const filtered = partners.filter(p => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      p.first_name?.toLowerCase().includes(q) ||
+      p.last_name?.toLowerCase().includes(q) ||
+      p.phone?.toLowerCase().includes(q) ||
+      p.district?.toLowerCase().includes(q) ||
+      (p.services || []).join(' ').toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Service Partners</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Service Partners</h1>
+        <span className="text-sm text-gray-500">{filtered.length} partners</span>
+      </div>
+
+      <div className="flex gap-3 mb-4">
+        <input
+          type="text"
+          placeholder="Search by name, phone, district, service..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+      </div>
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50">
@@ -26,9 +52,9 @@ export default function PartnersPage() {
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Loading...</td></tr>
-            ) : partners.length === 0 ? (
+            ) : filtered.length === 0 ? (
               <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">No partners found</td></tr>
-            ) : partners.map((p: any) => (
+            ) : filtered.map((p: any) => (
               <tr key={p.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm font-medium text-gray-900">{p.first_name} {p.last_name}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">{p.phone}</td>
