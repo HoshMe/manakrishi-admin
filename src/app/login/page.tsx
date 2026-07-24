@@ -14,7 +14,7 @@ export default function LoginPage() {
     if (!password) { setError('Enter password'); return; }
     setLoading(true);
     setError('');
-    const result = await api.adminLogin(`+91${phone}`, password);
+    const result = await api.adminLogin(phone, password);
     setLoading(false);
     if (result.error) { setError(result.error); return; }
     api.setToken(result.tokens.access);
@@ -35,17 +35,13 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-            <div className="flex gap-2">
-              <span className="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-600">+91</span>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Enter phone number"
-                maxLength={10}
-                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Enter phone number"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
           </div>
 
           <div className="mb-4">
