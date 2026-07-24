@@ -17,6 +17,7 @@ interface KYCDocument {
 
 export default function KYCPage() {
   const [docs, setDocs] = useState<KYCDocument[]>([]);
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [reviewing, setReviewing] = useState<number | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -30,6 +31,17 @@ export default function KYCPage() {
     } catch (e) {}
     setLoading(false);
   };
+
+  const filtered = docs.filter(d => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      d.user_name?.toLowerCase().includes(q) ||
+      d.user_phone?.toLowerCase().includes(q) ||
+      d.doc_type?.toLowerCase().includes(q) ||
+      d.doc_number?.toLowerCase().includes(q)
+    );
+  });
 
   const handleReview = async (docId: number, action: 'approve' | 'reject') => {
     const remarks = action === 'reject' ? prompt('Reason for rejection:') || '' : '';
@@ -49,8 +61,18 @@ export default function KYCPage() {
         <Shield className="w-6 h-6 text-green-600" />
         <h1 className="text-2xl font-bold text-gray-800">KYC Verification</h1>
         <span className="bg-yellow-100 text-yellow-700 text-sm px-3 py-1 rounded-full font-medium">
-          {docs.length} Pending
+          {filtered.length} Pending
         </span>
+      </div>
+
+      <div className="flex gap-3 mb-4">
+        <input
+          type="text"
+          placeholder="Search by name, phone, doc type..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
       </div>
 
       {loading ? (
@@ -65,7 +87,7 @@ export default function KYCPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {docs.map((doc) => (
+          {filtered.map((doc) => (
             <div key={doc.id} className="bg-white rounded-xl border p-5 shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
